@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>诗的回声</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <h1 class="brand">诗的回声</h1>
+      <p class="subtitle">以顾城与海子为底，写一首属于你的诗</p>
+      <div class="keybar">
+        <div class="key-mode" id="keyMode" role="radiogroup" aria-label="生成方式">
+          <button type="button" class="key-opt active" data-mode="default">默认（用站点额度）</button>
+          <button type="button" class="key-opt" data-mode="byo">用我自己的 DeepSeek Key</button>
+        </div>
+        <div id="keyPanel" class="key-panel hidden">
+          <input id="apiKey" type="password" placeholder="sk-... 仅存在你本机浏览器，不会上传保存" />
+          <button id="keySave" type="button" class="ghost">保存</button>
+          <button id="keyClear" type="button" class="ghost">清除</button>
+          <p class="key-tip" id="keyTip"></p>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- 输入区 -->
+      <section class="panel compose" aria-label="创作输入">
+        <div class="field">
+          <label for="title">标题<span class="opt">可空</span></label>
+          <input id="title" type="text" placeholder="比如：雨中的房间" />
+        </div>
+
+        <div class="field">
+          <label for="keywords">关键词 / 主题<span class="opt">可空，可点选下方词条</span></label>
+          <input id="keywords" type="text" placeholder="用空格或逗号分隔，如：麦地 黑夜 孤独" />
+          <div class="chips" id="themeChips" aria-label="主题词"></div>
+        </div>
+
+        <div class="field">
+          <label for="text">灵感文字<span class="opt">可空</span></label>
+          <textarea id="text" rows="3" placeholder="我想写一种人在夜里想起故乡的感觉……"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="style">期望风格<span class="opt">可空</span></label>
+          <textarea id="style" rows="2" placeholder="短句、冷一点、像梦一样、不要太直白……"></textarea>
+        </div>
+
+        <div class="field">
+          <span class="legend">长度</span>
+          <div class="segmented" id="lengthGroup" role="radiogroup">
+            <button type="button" class="seg" data-value="短诗">短诗</button>
+            <button type="button" class="seg active" data-value="中等">中等</button>
+            <button type="button" class="seg" data-value="长诗">长诗</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="legend">参考对象</span>
+          <div class="segmented" id="poetGroup" role="radiogroup">
+            <button type="button" class="seg" data-value="gucheng">顾城</button>
+            <button type="button" class="seg" data-value="haizi">海子</button>
+            <button type="button" class="seg active" data-value="both">二者</button>
+            <button type="button" class="seg" data-value="none">不参考</button>
+          </div>
+        </div>
+
+        <button id="generateBtn" class="generate">生成一首诗</button>
+        <p class="hint" id="hint"></p>
+      </section>
+
+      <!-- 结果区 -->
+      <section class="panel result" aria-label="生成结果">
+        <div id="empty" class="empty">
+          <p>左侧填写后点击「生成一首诗」。</p>
+          <p class="muted">字段都可留空，留空越多，诗越自由。</p>
+        </div>
+
+        <article id="poemView" class="poem hidden">
+          <pre id="poemText" class="poem-text"></pre>
+          <div class="poem-actions">
+            <button id="copyBtn" class="ghost">复制</button>
+            <button id="regenBtn" class="ghost">再写一首</button>
+          </div>
+        </article>
+
+        <div id="refView" class="refs hidden">
+          <h3 class="refs-title">本次参考的诗</h3>
+          <div id="refList"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>数据：《顾城诗全编》·《海子诗全集》</span>
+    </footer>
+  </div>
+
+  <div id="loading" class="loading hidden">
+    <div class="loading-inner">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <p>正在落笔……</p>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
