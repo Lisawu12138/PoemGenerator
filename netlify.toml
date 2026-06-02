@@ -1,6 +1,3 @@
-# Netlify 部署配置
-# 部署时把 PoemGenerator 作为站点根目录（或在 Netlify 里设置 Base directory = PoemGenerator）
-
 [build]
   publish = "web"
   functions = "netlify/functions"
@@ -8,20 +5,17 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# 把诗歌数据打包进函数（只需这两个 annotated 文件）
 [functions]
   included_files = [
     "assets/gucheng_poems_annotated.json",
     "assets/haizi_poems_annotated.json"
   ]
 
-# 主题词表：前端 /api/themes 直接读静态文件
 [[redirects]]
   from = "/api/themes"
   to = "/merged_theme_vocabulary.json"
   status = 200
 
-# 生成接口：/api/generate 重写到 serverless 函数（会转发 X-LLM-Key 头）
 [[redirects]]
   from = "/api/generate"
   to = "/.netlify/functions/generate"
