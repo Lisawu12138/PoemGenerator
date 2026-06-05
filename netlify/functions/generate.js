@@ -151,6 +151,27 @@ function buildReferenceBlock(refs) {
     .join("\n\n");
 }
 
+const WRITING_GUIDE = `现代诗写作方法参考（仅作辅助, 不要机械套用）:
+- 先定调: 明确整首诗的情绪、思想与声音, 情感要真, 避免空泛煽情。
+- 再取象: 用具体的物、动作、景色、细节承载情思, 不要只讲道理。
+- 重寄寓: 让情感附着在意象上, 多用借景抒情、托物言志、缘事抒情。
+- 会抒情: 用画面、反衬、象征、节奏变化形成含蓄和张力。
+- 要升华: 结尾留出回响、转折或境界打开, 避免口号式总结。
+- 注意分行和呼吸: 现代诗不拘格律, 但要有节奏、停顿、留白和画面感。`;
+
+function buildLengthRule(length) {
+  if (length === "短诗") {
+    return "正文写成一段左右, 控制在 2 到 8 句/行以内, 宁短勿长。";
+  }
+  if (length === "中诗" || length === "中等") {
+    return "正文写成中等长度,  约 6 到 16 句/行, 保持克制和完整。";
+  }
+  if (length === "长诗") {
+    return "正文可以适度展开为长诗, 约 10 句以上, 允许分段推进, 但不要冗长拖沓。";
+  }
+  return "长度由你把握, 但整体保持克制, 不要无故写得冗长。";
+}
+
 function buildPrompt(req, refs) {
   const title = (req.title || "").trim();
   const keywords =
@@ -159,6 +180,7 @@ function buildPrompt(req, refs) {
   const style = (req.style || "").trim() || "（未指定, 由你把握）";
   const length = (req.length || "").trim() || "（未指定, 由你把握）";
   const poetLabel = POET_MODE_LABEL[req.poetMode] || "自由创作";
+  const lengthRule = buildLengthRule(length);
 
   const refBlock = buildReferenceBlock(refs);
   const refSection = refBlock
@@ -177,7 +199,10 @@ function buildPrompt(req, refs) {
 1. 是全新的原创诗, 不要复述、改写、拼接已有诗句。
 2. 可以学习参考作品的意象倾向、语感和气质, 最好不搬用其具体词句或意象组合。
 3. 只输出诗歌本身, 不要任何解释、说明或前后缀。
+4. ${lengthRule}
 ${titleRule}
+
+${WRITING_GUIDE}
 
 参考对象: ${poetLabel}
 
