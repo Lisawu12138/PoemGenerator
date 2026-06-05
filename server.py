@@ -206,6 +206,24 @@ POET_MODE_LABEL = {
     "none": "不参考任何诗人, 自由创作",
 }
 
+WRITING_GUIDE = """现代诗写作方法参考（仅作辅助, 不要机械套用）:
+- 先定调: 明确整首诗的情绪、思想与声音, 情感要真, 避免空泛煽情。
+- 再取象: 用具体的物、动作、景色、细节承载情思, 不要只讲道理。
+- 重寄寓: 让情感附着在意象上, 多用借景抒情、托物言志、缘事抒情。
+- 会抒情: 用画面、反衬、象征、节奏变化形成含蓄和张力。
+- 要升华: 结尾留出回响、转折或境界打开, 避免口号式总结。
+- 注意分行和呼吸: 现代诗不拘格律, 但要有节奏、停顿、留白和画面感。"""
+
+
+def _build_length_rule(length: str) -> str:
+    if length == "短诗":
+        return "正文写成一段左右, 约 2 到 8 句/行以内, 宁短勿长。"
+    if length in {"中诗", "中等"}:
+        return "正文写成中等长度,  约 6 到 16 句/行, 保持克制和完整。"
+    if length == "长诗":
+        return "文可以适度展开为长诗, 约 10 句以上, 允许分段推进, 但不要冗长拖沓。"
+    return "长度由你把握, 但整体保持克制, 不要无故写得冗长。"
+
 
 def _build_reference_block(refs: List[Dict[str, Any]]) -> str:
     """按用户要求: 参考内容中带上正文, 以保证气质统一、不至于不伦不类。"""
@@ -234,26 +252,35 @@ def build_prompt(payload: "GenerateRequest", refs: List[Dict[str, Any]]) -> str:
     style = payload.style.strip() or "（未指定, 由你把握）"
     length = payload.length.strip() or "（未指定, 由你把握）"
     poet_label = POET_MODE_LABEL.get(payload.poetMode, "自由创作")
+    length_rule = _build_length_rule(length)
 
     ref_block = _build_reference_block(refs)
     ref_section = (
         f"\n以下是从诗歌数据库中检索到的参考作品(含正文)。"
         f"请仔细体会它们的意象选择、语感、节奏与气质, "
-        f"但严禁照抄、改写、拼接其中任何诗句:\n\n{ref_block}\n"
+        f"尽量不要照抄、改写、拼接其中任何诗句:\n\n{ref_block}\n"
         if ref_block
         else "\n本次不提供参考作品, 请完全自由创作。\n"
     )
 
-    prompt = f"""你是一位中文现代诗写作助手, 擅长写出克制、有画面感、有呼吸感的原创现代诗。
+    title_rule = (
+        f"标题使用「{title}」, 第一行只输出这个标题, 单独成行, 随后空一行再写正文。诗的内容要扣题。"
+        if title
+        else "用户未提供标题, 请自拟一个贴切的标题。第一行输出标题, 单独成行, 随后空一行再写正文。"
+    )
 
-请根据用户输入创作一首原创现代诗。
+    prompt = f"""你是一位中文现代诗的诗人, 擅长写出克制、有画面感、有呼吸感的原创现代诗。
 
-硬性要求:
-1. 必须是全新的原创诗, 不要复述、改写、拼接任何已有诗句。
-2. 可以学习参考作品的意象倾向、语感和气质, 但绝不能搬用其具体词句或意象组合。
-3. 语言克制, 重画面与留白, 避免空泛抒情和口号式句子。
-4. 只输出诗歌本身, 不要任何解释、说明或前后缀。
-5. 第一行输出标题(若用户提供了标题就用它; 没有则自拟一个贴切的标题), 标题单独成行, 随后空一行再写正文。
+请根据输入创作一首原创现代诗。
+
+要求:
+1. 是全新的原创诗, 不要复述、改写、拼接已有诗句。
+2. 可以学习参考作品的意象倾向、语感和气质, 最好不搬用其具体词句或意象组合。
+3. 只输出诗歌本身, 不要任何解释、说明或前后缀。
+4. {length_rule}
+{title_rule}
+
+{WRITING_GUIDE}
 
 参考对象: {poet_label}
 
@@ -294,7 +321,7 @@ async def call_llm(prompt: str, api_key: str = "") -> str:
         "messages": [
             {
                 "role": "system",
-                "content": "你是一位精于中文现代诗的写作助手, 只输出诗歌正文, 不做任何解释。",
+                "content": "你是一位精于中文现代诗的诗人, 只输出诗歌正文, 不做任何解释。",
             },
             {"role": "user", "content": prompt},
         ],
